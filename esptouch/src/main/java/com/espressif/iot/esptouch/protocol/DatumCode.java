@@ -49,7 +49,7 @@ public class DatumCode implements ICodeData {
         int ipLen = ipBytes.length;
 
         char totalLen = (char) (EXTRA_HEAD_LEN + ipLen + apPwdLen + apSsidLen);
-
+        //DataCode 组包编码，从0开始
         // build data codes
         mDataCodes = new LinkedList<>();
         mDataCodes.add(new DataCode(totalLen, 0));

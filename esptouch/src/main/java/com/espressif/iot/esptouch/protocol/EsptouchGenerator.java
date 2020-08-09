@@ -26,11 +26,11 @@ public class EsptouchGenerator implements IEsptouchGenerator {
         GuideCode gc = new GuideCode();
         char[] gcU81 = gc.getU8s();
         mGcBytes2 = new byte[gcU81.length][];
-
+        //一维引导码扩展成二维引导包
         for (int i = 0; i < mGcBytes2.length; i++) {
             mGcBytes2[i] = ByteUtil.genSpecBytes(gcU81[i]);
         }
-
+        //生成数据包头和数据的组包
         // generate data code
         DatumCode dc = new DatumCode(apSsid, apBssid, apPassword, inetAddress, encryptor);
         char[] dcU81 = dc.getU8s();

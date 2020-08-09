@@ -26,7 +26,7 @@ public class GuideCode implements ICodeData {
         }
         return sb.toString();
     }
-
+    //char 在java中占2个字节空间
     @Override
     public char[] getU8s() {
         char[] guidesU8s = new char[GUIDE_CODE_LEN];

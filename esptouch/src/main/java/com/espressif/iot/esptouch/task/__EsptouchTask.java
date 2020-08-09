@@ -64,7 +64,7 @@ public class __EsptouchTask implements __IEsptouchTask {
         mEsptouchResultList = new ArrayList<>();
         mBssidTaskSucCountMap = new HashMap<>();
     }
-
+    //收到EPS32回信时调用
     private void __putEsptouchResult(boolean isSuc, String bssid, InetAddress inetAddress) {
         synchronized (mEsptouchResultList) {
             // check whether the result receive enough UDP response
@@ -161,6 +161,7 @@ public class __EsptouchTask implements __IEsptouchTask {
                 }
                 byte receiveOneByte = -1;
                 byte[] receiveBytes = null;
+                //这里有设备数量的判据，有多少个设备理论上就会__putEsptouchResult多少次，里面有过滤重复和添加设备列表的操作
                 while (mEsptouchResultList.size() < mParameter
                         .getExpectTaskResultCount() && !mIsInterrupt) {
                     receiveBytes = mSocketServer
@@ -232,16 +233,17 @@ public class __EsptouchTask implements __IEsptouchTask {
         long startTime = System.currentTimeMillis();
         long currentTime = startTime;
         long lastTime = currentTime - mParameter.getTimeoutTotalCodeMillisecond();
-
+        //生成数据包
         byte[][] gcBytes2 = generator.getGCBytes2();
         byte[][] dcBytes2 = generator.getDCBytes2();
-
+        //分2阶段发送数据包
         int index = 0;
         while (!mIsInterrupt) {
             if (currentTime - lastTime >= mParameter.getTimeoutTotalCodeMillisecond()) {
                 if (__IEsptouchTask.DEBUG) {
                     Log.d(TAG, "send gc code ");
                 }
+                //第一阶段，sendData为数据序列发送
                 // send guide code
                 while (!mIsInterrupt
                         && System.currentTimeMillis() - currentTime < mParameter
@@ -255,6 +257,7 @@ public class __EsptouchTask implements __IEsptouchTask {
                         break;
                     }
                 }
+                //执行下一句后，上面的if为假，开始执行else
                 lastTime = currentTime;
             } else {
                 mSocketClient.sendData(dcBytes2, index, ONE_DATA_LEN,
@@ -315,9 +318,12 @@ public class __EsptouchTask implements __IEsptouchTask {
         IEsptouchGenerator generator = new EsptouchGenerator(mApSsid, mApBssid,
                 mApPassword, localInetAddress, mEncryptor);
         // listen the esptouch result asyn
+        //使用线程的方式在指定端口监听指定数据长度的包，直到收到或者超时
         __listenAsyn(mParameter.getEsptouchResultTotalLen());
         boolean isSuc = false;
+        //下面循环决定发送一整组的次数
         for (int i = 0; i < mParameter.getTotalRepeatTime(); i++) {
+            //下面一行开始一整组发送，分2部分，直到各自发送时间超时而结束
             isSuc = __execute(generator);
             if (isSuc) {
                 return __getEsptouchResultList();

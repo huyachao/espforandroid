@@ -231,7 +231,7 @@ public class EspTouchActivity extends EspTouchActivityAbs {
             }
             return mEsptouchTask.executeForResults(taskResultCount);
         }
-
+        //doInBackground退出时即executeForResults返回时执行onPostExecute
         @Override
         protected void onPostExecute(List<IEsptouchResult> result) {
             EspTouchActivity activity = mActivity.get();
